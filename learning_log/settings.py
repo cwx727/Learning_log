@@ -29,8 +29,8 @@ SECRET_KEY = 'lrm(12-3mm1_awl_pdt8lkbpw!6)_f(l_fb9+!f1(y^v54y5e1'
 #ALLOWED_HOSTS = []
 
 # 安全警告： 不要在在线环境中启用调试！
-DEBUG = True
-#DEBUG = False
+#DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['localhost']
 
 
@@ -66,8 +66,8 @@ ROOT_URLCONF = 'learning_log.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-       # 'DIRS': [os.path.join(BASE_DIR, 'learning_log/templates')],
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'learning_log/templates')],
+       # 'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
