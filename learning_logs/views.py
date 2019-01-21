@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 from .models import Topic, Entry
 from .forms import TopicForm, EntryForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 
 def check_topic_owner(topic_owner, request_user):
@@ -18,17 +19,22 @@ def check_topic_owner(topic_owner, request_user):
 def index(request):
 	return render(request, 'learning_logs/index.html')
 
-@login_required	
+
 def topics(request):
-	topics = Topic.objects.filter(owner=request.user).order_by('date_added')
+	#下面的if-else语句为让未登录的用户也可以看到所有公开的主题
+	if request.user.is_authenticated:
+		topics = Topic.objects.filter(Q(owner=request.user)|Q(public = True)).order_by('date_added') 
+	else:
+		topics = Topic.objects.filter(public = True).order_by('date_added') 
 	context = {'topics':topics}
 	return render(request, 'learning_logs/topics.html', context)
 
 @login_required		
 def topic(request, topic_id):
+	topic = get_object_or_404(Topic, id=topic_id)
 	"""显示单个主题及其所有的条目"""
-	topic = Topic.objects.get(id=topic_id)
-	#topic_owner = topic.owner
+	#topic = Topic.objects.get(id=topic_id)
+	topic_owner = topic.owner
 	#request_user = request.user
 	check_topic_owner(topic.owner,request.user)
 	
@@ -50,6 +56,8 @@ def new_topic(request):
 		if form.is_valid():
 			new_topic = form.save(commit=False)
 			new_topic.owner = request.user
+			#new_topic.publc = False               #####
+		#	new_topic.public = request.POST.get('public')   ####
 			new_topic.save()
 			return HttpResponseRedirect(reverse('learning_logs:topics'))
 			
@@ -58,7 +66,8 @@ def new_topic(request):
 
 @login_required		
 def new_entry(request, topic_id):
-	topic = Topic.objects.get(id=topic_id)
+	#topic = Topic.objects.get(id=topic_id)
+	topic = get_object_or_404(Topic, id=topic_id)
 	check_topic_owner(topic.owner,request.user)
 	
 	if request.method != 'POST':
@@ -92,7 +101,8 @@ def edit_entry(request, entry_id):
 @login_required	
 def edit_entry(request, entry_id):
 
-	entry = Entry.objects.get(id=entry_id)
+#	entry = Entry.objects.get(id=entry_id)
+	entry = get_object_or_404(Entry, id=entry_id)
 	topic = entry.topic
 	
 	check_topic_owner(topic.owner,request.user)

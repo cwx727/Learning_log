@@ -1,12 +1,22 @@
 from django import forms
 from .models import Topic, Entry
 
+'''
 class TopicForm(forms.ModelForm):
 	class Meta:
 		model = Topic
 		fields = ['text']
 		labels = {'text':''}
-		
+'''
+class TopicForm(forms.ModelForm):
+	class Meta:
+		model = Topic
+		fields = ['text','public']
+		labels = {'text':'topics name:','public':'public or private:'}
+
+
+
+
 class EntryForm(forms.ModelForm):
 	class Meta:
 		model = Entry
